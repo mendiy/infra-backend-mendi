@@ -11,7 +11,6 @@ async function insertUsersDB(data) {
   while (retries < MAX_RETRIES) {
     try {
 
-      const token = await JWT.sign(data.email, 'megobb');
       const password = await bcrypt.hash(data.password, 10);
 
       const user = new User({
@@ -19,13 +18,13 @@ async function insertUsersDB(data) {
         lastName: data.lastName,
         email: data.email,
         password: password,
-        token: token,
-        title: null
+        token: null,
+        title: data.title
       });
       const result = await user.save();
       
       console.log(`${result._id} document inserted.`);
-      return token ;
+      return user ;
     } catch (e) {
       if (e.message.includes('buffering timed out')) {
         console.warn(`Insertion attempt ${retries + 1} timed out. Retrying...`);
@@ -52,7 +51,6 @@ async function insertUsersDB(data) {
 
   
   async function chackUserLoginDB(data) {
-
     let retries = 0;
     while (retries < MAX_RETRIES) {
       try {
@@ -63,7 +61,16 @@ async function insertUsersDB(data) {
         } else {
           const isPasswordValid = await bcrypt.compare(data.password, documents.password);
             if (isPasswordValid) {
-              return false
+              if(!documents.token){
+                console.log(documents.token, 888888888);
+                const token = await JWT.sign(data.email, 'megobb');
+                const updatedUser = await User.findOneAndUpdate(
+                  { email: data.email }, // Use the appropriate filter to locate the user
+                  { $set: { token: token } }, // Set the new token value
+                  { new: true } // This option returns the updated document
+                );
+              }
+              return documents
             } else {
               console.log("Email or Password is incorrect.");
               return "Email or Password is incorrect."
