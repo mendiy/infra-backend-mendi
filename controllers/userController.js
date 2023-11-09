@@ -13,20 +13,19 @@ const insertUserController = async (req, res) => {
         const errorMessages = errors.array().map(error => error.msg);
         return res.status(400).json({ errors: errorMessages });    
       }
-
       const user = await checksIfUsernameExists(data);
       if(user){
-        res.status(400).json({ errors:['This user already exists']})
+        return res.status(400).json({ errors:['This user already exists']})
       }else{
         try {
           const success = await insertUsersDB(data);
           if (success) {
-            res.status(201).json({ message: 'User inserted successfully', token: success });
+            return res.status(201).json({ message: 'User inserted successfully', data: success });
           } else {
-            res.status(500).json({ error: 'User insertion failed' });
+            return res.status(500).json({ error: 'User insertion failed' });
           }
         } catch (error) {
-          res.status(400).json({ error: error.message });
+          return res.status(400).json({ error: error.message });
         }
     }
   };
@@ -38,7 +37,8 @@ const chackUserLoginController = async (req, res) => {
   if (result) {
     return res.status(400).json({ errors: result });
   }
-    return res.status(200).send("You connected to success");
+    return res.status(200).send({ message:"You connected to success", token: data});
   };
+
 
   export { insertUserController, insertUserControllerMiddleware, chackUserLoginController };
