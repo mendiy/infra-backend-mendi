@@ -1,9 +1,6 @@
 import mongoose from "mongoose";
-import dotenv from "dotenv"
 
-// dotenv.config({
-//   path: '../.env'
-// });
+let connect = null
 
 const connectToDatabase = async () => {
   const userName = process.env.DB_USERNAME;
@@ -14,12 +11,14 @@ const connectToDatabase = async () => {
   const connectionURI = `mongodb+srv://${userName}:${password}${cluster}${dbName}`;
 
   try {
-    await mongoose.connect(connectionURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
-
-    console.log('Connected to the database');
+    if (!connect) {
+      connect = await mongoose.connect(connectionURI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+      });
+      console.log('Connected to the database');
+    }
+    return connect
   } catch (error) {
     console.error('Error connecting to the database:', error);
   }

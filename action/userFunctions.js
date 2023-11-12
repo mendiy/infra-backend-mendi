@@ -1,4 +1,4 @@
-import  { User } from '../db/userSchema.js';
+import { User } from '../db/userSchema.js';
 import bcrypt from "bcrypt";
 import JWT from "jsonwebtoken";
 
@@ -18,13 +18,14 @@ async function insertUsersDB(data) {
         lastName: data.lastName,
         email: data.email,
         password: password,
-        token: null,
+        token: data.token,
         title: data.title
       });
+
       const result = await user.save();
-      
+
       console.log(`${result._id} document inserted.`);
-      return user ;
+      return user;
     } catch (e) {
       if (e.message.includes('buffering timed out')) {
         console.warn(`Insertion attempt ${retries + 1} timed out. Retrying...`);
@@ -49,78 +50,78 @@ async function insertUsersDB(data) {
 
 
 
-  
-  async function chackUserLoginDB(data) {
-    let retries = 0;
-    while (retries < MAX_RETRIES) {
-      try {
-        const documents = await checksIfUsernameExists(data);
-        if (!documents) {
-          console.log("Username does not exist, you can register!");
-          return "Username does not exist, you can register!"
+
+async function chackUserLoginDB(data) {
+  let retries = 0;
+  while (retries < MAX_RETRIES) {
+    try {
+      const documents = await checksIfUsernameExists(data);
+      if (!documents) {
+        console.log("Username does not exist, you can register!");
+        return "Username does not exist, you can register!"
+      } else {
+        const isPasswordValid = await bcrypt.compare(data.password, documents.password);
+        if (isPasswordValid) {
+          if (!documents.token) {
+            console.log(documents.token, 888888888);
+            const token = await JWT.sign(data.email, 'megobb');
+            const updatedUser = await User.findOneAndUpdate(
+              { email: data.email }, // Use the appropriate filter to locate the user
+              { $set: { token: token } }, // Set the new token value
+              { new: true } // This option returns the updated document
+            );
+          }
+          return documents
         } else {
-          const isPasswordValid = await bcrypt.compare(data.password, documents.password);
-            if (isPasswordValid) {
-              if(!documents.token){
-                console.log(documents.token, 888888888);
-                const token = await JWT.sign(data.email, 'megobb');
-                const updatedUser = await User.findOneAndUpdate(
-                  { email: data.email }, // Use the appropriate filter to locate the user
-                  { $set: { token: token } }, // Set the new token value
-                  { new: true } // This option returns the updated document
-                );
-              }
-              return documents
-            } else {
-              console.log("Email or Password is incorrect.");
-              return "Email or Password is incorrect."
-            }
-        }
-      } catch (e) {
-        if (e.message.includes('buffering timed out')) {
-          console.warn(`Query attempt ${retries + 1} timed out. Retrying...`);
-          retries++;
-          await new Promise(resolve => setTimeout(resolve, RETRY_INTERVAL));
-        } else {
-          console.error('Error while querying users:', e);
-          throw new Error('An error occurred: ' + e);
+          console.log("Email or Password is incorrect.");
+          return "Email or Password is incorrect."
         }
       }
-    }
-    console.error(`Query failed after ${MAX_RETRIES} retries.`);
-    throw new Error('An error occurred during the query.');
-  }
-
-
-  async function checksIfUsernameExists(data) {
-    let retries = 0;
-    while (retries < MAX_RETRIES) {
-      try {
-        const query = {
-          email: data.email
-        };
-  
-        const documents = await User.findOne(query);
-        if (!documents) {
-          console.log(false);
-          return false;
-        } else {
-          console.log('This user already exists');
-          return documents;
-        }
-      } catch (e) {
-        if (e.message.includes('buffering timed out')) {
-          console.warn(`Query attempt ${retries + 1} timed out. Retrying...`);
-          retries++;
-          await new Promise(resolve => setTimeout(resolve, RETRY_INTERVAL));
-        } else {
-          console.error('Error while querying users:', e);
-          throw new Error('An error occurred: ' + e);
-        }
+    } catch (e) {
+      if (e.message.includes('buffering timed out')) {
+        console.warn(`Query attempt ${retries + 1} timed out. Retrying...`);
+        retries++;
+        await new Promise(resolve => setTimeout(resolve, RETRY_INTERVAL));
+      } else {
+        console.error('Error while querying users:', e);
+        throw new Error('An error occurred: ' + e);
       }
     }
-    console.error(`Query failed after ${MAX_RETRIES} retries.`);
-    throw new Error('An error occurred during the query.');
   }
+  console.error(`Query failed after ${MAX_RETRIES} retries.`);
+  throw new Error('An error occurred during the query.');
+}
 
-  export { insertUsersDB, chackUserLoginDB, checksIfUsernameExists };
+
+async function checksIfUsernameExists(data) {
+  let retries = 0;
+  while (retries < MAX_RETRIES) {
+    try {
+      const query = {
+        email: data.email
+      };
+
+      const documents = await User.findOne(query);
+      if (!documents) {
+        console.log(false);
+        return false;
+      } else {
+        console.log('This user already exists');
+        return documents;
+      }
+    } catch (e) {
+      if (e.message.includes('buffering timed out')) {
+        console.warn(`Query attempt ${retries + 1} timed out. Retrying...`);
+        retries++;
+        await new Promise(resolve => setTimeout(resolve, RETRY_INTERVAL));
+      } else {
+        console.error('Error while querying users:', e);
+        throw new Error('An error occurred: ' + e);
+      }
+    }
+  }
+  console.error(`Query failed after ${MAX_RETRIES} retries.`);
+  throw new Error('An error occurred during the query.');
+}
+
+export { insertUsersDB, chackUserLoginDB, checksIfUsernameExists };
