@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+
 let connect = null
 
 const connectToDatabase = async () => {
@@ -17,6 +18,7 @@ const connectToDatabase = async () => {
         useUnifiedTopology: true
       });
       console.log('Connected to the database');
+
     }
     return connect
   } catch (error) {
