@@ -58,23 +58,24 @@ async function chackUserLoginDB(data) {
       const documents = await checksIfUsernameExists(data);
       if (!documents) {
         console.log("Username does not exist, you can register!");
-        return "Username does not exist, you can register!"
+        return false //"Username does not exist, you can register!"
       } else {
         const isPasswordValid = await bcrypt.compare(data.password, documents.password);
         if (isPasswordValid) {
-          if (!documents.token) {
-            console.log(documents.token, 888888888);
+          if (!data.token) {
             const token = await JWT.sign(data.email, 'megobb');
             const updatedUser = await User.findOneAndUpdate(
               { email: data.email }, // Use the appropriate filter to locate the user
               { $set: { token: token } }, // Set the new token value
               { new: true } // This option returns the updated document
             );
+            console.log(token);
+            return token
           }
-          return documents
+
         } else {
           console.log("Email or Password is incorrect.");
-          return "Email or Password is incorrect."
+          return false
         }
       }
     } catch (e) {
@@ -103,7 +104,6 @@ async function checksIfUsernameExists(data) {
 
       const documents = await User.findOne(query);
       if (!documents) {
-        console.log(false);
         return false;
       } else {
         console.log('This user already exists');
@@ -123,5 +123,7 @@ async function checksIfUsernameExists(data) {
   console.error(`Query failed after ${MAX_RETRIES} retries.`);
   throw new Error('An error occurred during the query.');
 }
+
+
 
 export { insertUsersDB, chackUserLoginDB, checksIfUsernameExists };

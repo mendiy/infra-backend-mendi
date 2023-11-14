@@ -9,8 +9,7 @@ const insertUserControllerMiddleware = [
 ];
 
 const insertUserController = async (req, res) => {
-  //connectToDatabase();
-  console.log(5555555555);
+  connectToDatabase();
   const data = req.body;
   console.log(data);
   const errors = validationResult(req);
@@ -37,15 +36,33 @@ const insertUserController = async (req, res) => {
 
 
 const chackUserLoginController = async (req, res) => {
-  //connectToDatabase();
-  const data = req.body
-  console.log(data);
-  const result = await chackUserLoginDB(data)
-  if (result) {
-    return res.status(400).json({ errors: result });
+  try {
+    connectToDatabase();
+    const data = req.body
+    const result = await chackUserLoginDB(data)
+    if (result) {
+      return res.status(200).json({ message: "You connected to success", token: result });
+    }
+    return res.status(300).send({ message: "Email or Password is incorrect." });
+  } catch (error) {
+    return res.status(400).send({ error: error.message });
   }
-  return res.status(200).send({ message: "You connected to success", token: data });
 };
 
+const getUserNameController = async (req, res) => {
+  try {
+    connectToDatabase();
+    const data = req.query
+    console.log(data);
+    const result = await checksIfUsernameExists(data)
+    if (result) {
+      return res.status(200).json({ firstName: result.firstName, lastName: result.lastName });
+    }
+    return res.status(400).send({ massage: "Username does not exist, you can register!"
+  });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
 
-export { insertUserController, insertUserControllerMiddleware, chackUserLoginController };
+export { insertUserController, insertUserControllerMiddleware, chackUserLoginController, getUserNameController };
