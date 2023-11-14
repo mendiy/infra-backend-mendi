@@ -9,8 +9,10 @@ const insertUserControllerMiddleware = [
 ];
 
 const insertUserController = async (req, res) => {
-  connectToDatabase();
-  const data = req.query;
+  //connectToDatabase();
+  console.log(5555555555);
+  const data = req.body;
+  console.log(data);
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const errorMessages = errors.array().map(error => error.msg);
@@ -35,8 +37,9 @@ const insertUserController = async (req, res) => {
 
 
 const chackUserLoginController = async (req, res) => {
-  connectToDatabase();
-  const data = req.query
+  //connectToDatabase();
+  const data = req.body
+  console.log(data);
   const result = await chackUserLoginDB(data)
   if (result) {
     return res.status(400).json({ errors: result });
