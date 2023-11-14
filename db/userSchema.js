@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+const allowedTitles = ['developers', 'project managers', 'product managers', 'designers'];
 
 const userSchema = new mongoose.Schema({
   firstName: {
@@ -17,9 +18,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  title: String,
+  title: {
+    type: String,
+    enum: allowedTitles,
+  },
   token: String,
-  date: {
+  createdAt: {
     type: Date,
     default: Date.now,
   },
