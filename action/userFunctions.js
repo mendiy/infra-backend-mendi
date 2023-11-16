@@ -18,7 +18,7 @@ async function insertUsersDB(data) {
         lastName: data.lastName,
         email: data.email,
         password: password,
-        token: data.token,
+        //token: data.token,
         title: data.title
       });
 
@@ -62,16 +62,19 @@ async function chackUserLoginDB(data) {
       } else {
         const isPasswordValid = await bcrypt.compare(data.password, documents.password);
         if (isPasswordValid) {
-          if (!data.token) {
-            const token = await JWT.sign(data.email, 'megobb');
-            const updatedUser = await User.findOneAndUpdate(
-              { email: data.email }, // Use the appropriate filter to locate the user
-              { $set: { token: token } }, // Set the new token value
-              { new: true } // This option returns the updated document
-            );
-            console.log(token);
-            return token
-          }
+          const payload = {
+            email: data.email,
+            timestamp: Date.now(),
+          };
+          const token = JWT.sign(payload, 'megobb', { algorithm: "HS256" });
+          // const updatedUser = await User.findOneAndUpdate(
+          //   { email: data.email }, // Use the appropriate filter to locate the user
+          //   { $set: { token: token } }, // Set the new token value
+          //   { new: true } // This option returns the updated document
+          // );
+          console.log(token);
+          return token
+          
 
         } else {
           console.log("Email or Password is incorrect.");
