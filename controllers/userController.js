@@ -8,6 +8,7 @@ const insertUserControllerMiddleware = [
   check("password", "Please provide a password that is greater than 8 characters").isLength({ min: 8 })
 ];
 
+
 const insertUserController = async (req, res) => {
   connectToDatabase();
   const data = req.body;
@@ -26,7 +27,7 @@ const insertUserController = async (req, res) => {
       if (success) {
         return res.status(201).json({ message: 'User inserted successfully', data: success });
       } else {
-        return res.status(500).json({ error: 'User insertion failed' });
+        return res.status(400).json({ error: 'User insertion failed' });
       }
     } catch (error) {
       return res.status(400).json({ error: error.message });
@@ -43,7 +44,7 @@ const chackUserLoginController = async (req, res) => {
     if (result) {
       return res.status(200).json({ message: "You connected to success", token: result });
     }
-    return res.status(300).send({ message: "Email or Password is incorrect." });
+    return res.status(400).send({ message: "Email or Password is incorrect." });
   } catch (error) {
     return res.status(400).send({ error: error.message });
   }

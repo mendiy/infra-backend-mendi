@@ -62,20 +62,19 @@ async function chackUserLoginDB(data) {
       } else {
         const isPasswordValid = await bcrypt.compare(data.password, documents.password);
         if (isPasswordValid) {
+          
+          // Set the expiration time (in seconds)
+          const expiresIn = 86400; // 24 hour
+          
           const payload = {
             email: data.email,
             timestamp: Date.now(),
           };
-          const token = JWT.sign(payload, 'megobb', { algorithm: "HS256" });
-          // const updatedUser = await User.findOneAndUpdate(
-          //   { email: data.email }, // Use the appropriate filter to locate the user
-          //   { $set: { token: token } }, // Set the new token value
-          //   { new: true } // This option returns the updated document
-          // );
+          
+          const token = JWT.sign(payload, 'megobb', {expiresIn}, { algorithm: "HS256" });
+
           console.log(token);
           return token
-          
-
         } else {
           console.log("Email or Password is incorrect.");
           return false

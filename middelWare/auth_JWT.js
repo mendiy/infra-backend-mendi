@@ -1,27 +1,35 @@
- import jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
-const jwtSecret = process.env.JWT_SECRET || 'megobb';
+const jwtSecret = process.env.JWT_SECRET;
 
-const jwtMiddleware = async (req, res) => {
-  //console.log(req.headers.authorization);
+// Middleware to conditionally verify JWT for routes other than /register and /login
+const verifyToken = (req, res, next) => {
+  // Extract the token from the request headers, query parameters, or cookies
   const token = req.headers.authorization;
-  if (!token) {
-    console.log('Token not provided');
-    return res.status(401).json({ error: 'Token not provided' });
-  }
-  try {
-    const decoded = jwt.verify(token, jwtSecret);
-    // If the token is valid, the execution reaches here
-    console.log({user: decoded});
-    res.json({ isValid: true, user: decoded });
-  } catch (error) {
-    console.log('Invalid token');
-    // If the token is invalid, respond with a 401 status
-    res.status(401).json({ error: 'Invalid token' });
+
+  // List of routes where JWT verification is not required
+  const excludedRoutes = ['/register', '/login'];
+
+  if (!excludedRoutes.includes(req.path)) {
+    if (token) {
+      try {
+        // Verify the token
+        const decoded = jwt.verify(token, jwtSecret);
+        req.user = decoded; // Attach the decoded payload to the request object
+        next(); // Continue to the next middleware or route handler
+      } catch (error) {
+        res.status(401).json({ error: 'JWT verification failed' });
+      }
+    } else {
+      res.status(401).json({ error: 'JWT token is missing' });
+    }
+  } else {
+    next(); // Continue to the next middleware or route handler (no verification for excluded routes)
   }
 };
 
-export default jwtMiddleware
+
+export default verifyToken;
 
 
 
