@@ -1,5 +1,6 @@
 import {
   insertUsersDB,
+  getUpdateUserTitleDB,
   chackUserLoginDB,
   checksIfUsernameExists,
   allUsersControllerDB
@@ -44,13 +45,10 @@ const insertUserController = async (req, res) => {
 const getUpdateUserTitleController = async (req, res) => {
   try {
     connectToDatabase();
-    const data = req.query
-    console.log(data);
-    const filter = {email: data.email}
-    const update = {title: data.title}
-    const result = await User.updateOne(filter, update);
+    const data = req.body
+    const result = await getUpdateUserTitleDB(data)
     if (result) {
-      return res.status(200).json({ firstName: result.firstName, lastName: result.lastName });
+      return res.status(200).json({ message: "The update was successful" });
     }
     return res.status(400).send({
       massage: "Username does not exist, you can register!"

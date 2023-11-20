@@ -1,5 +1,6 @@
 import { User } from '../db/userSchema.js';
 import bcrypt from "bcrypt";
+import { Router } from 'express';
 import JWT from "jsonwebtoken";
 
 
@@ -19,7 +20,7 @@ async function insertUsersDB(data) {
         email: data.email,
         password: password,
         //token: data.token,
-        title: data.title
+        title: null
       });
 
       const result = await user.save();
@@ -46,6 +47,32 @@ async function insertUsersDB(data) {
   }
   console.error(`User insertion failed after ${MAX_RETRIES} retries.`);
   throw new Error('User insertion failed');
+}
+
+async function getUpdateUserTitleDB(data) {
+  let retries = 0;
+  while (retries < MAX_RETRIES) {
+    try {
+      console.log(data.email);
+      const filter = { email: data.email }
+      const update = { title: data.title }
+
+      await User.updateOne(filter, update);
+      
+      return true
+    } catch (e) {
+      if (e.message.includes('buffering timed out')) {
+        console.warn(`Query attempt ${retries + 1} timed out. Retrying...`);
+        retries++;
+        await new Promise(resolve => setTimeout(resolve, RETRY_INTERVAL));
+      } else {
+        console.error('Error while querying users:', e);
+        throw new Error('An error occurred: ' + e);
+      }
+    }
+  }
+  console.error(`Query failed after ${MAX_RETRIES} retries.`);
+  throw new Error('An error occurred during the query.');
 }
 
 
@@ -129,11 +156,10 @@ async function allUsersControllerDB(data) {
   let retries = 0;
   while (retries < MAX_RETRIES) {
     try {
-      const documents = await User.findOne();
+      const documents = await User.find();
       if (!documents) {
         return false;
       } else {
-        console.log(documents);
         return documents;
       }
     } catch (e) {
@@ -154,6 +180,7 @@ async function allUsersControllerDB(data) {
 
 export {
   insertUsersDB,
+  getUpdateUserTitleDB,
   chackUserLoginDB,
   checksIfUsernameExists,
   allUsersControllerDB
