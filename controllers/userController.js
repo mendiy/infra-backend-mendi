@@ -46,8 +46,7 @@ const getUpdateUserTitleController = async (req, res) => {
   try {
     connectToDatabase();
     const data = req.body
-    console.log(data);
-    result = await getUpdateUserTitleDB(data)
+    const result = await getUpdateUserTitleDB(data)
     if (result) {
       return res.status(200).json({ message: "The update was successful" });
     }
