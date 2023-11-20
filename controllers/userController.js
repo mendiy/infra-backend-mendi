@@ -45,7 +45,7 @@ const insertUserController = async (req, res) => {
 const getUpdateUserTitleController = async (req, res) => {
   try {
     connectToDatabase();
-    const data = req.query
+    const data = req.body
     console.log(data);
     result = await getUpdateUserTitleDB(data)
     if (result) {

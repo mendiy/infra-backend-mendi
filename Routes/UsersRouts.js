@@ -12,7 +12,7 @@ import {
 const UsersRoutes = Router();
 
 UsersRoutes.post("/register", insertUserControllerMiddleware, insertUserController);
-UsersRoutes.get('/userTitle', getUpdateUserTitleController)
+UsersRoutes.post('/userTitle', getUpdateUserTitleController)
 UsersRoutes.post("/login", chackUserLoginController);
 UsersRoutes.get('/avatar', getUserNameController)
 UsersRoutes.get('/users ', allUsersController) //Get all users
