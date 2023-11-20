@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-const allowedTitles = ['developers', 'project managers', 'product managers', 'designers'];
+const allowedTitles = ['developer', 'project manager', 'product manager', 'designer', 'Other'];
 
 const userSchema = new mongoose.Schema({
   firstName: {
@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: allowedTitles,
   },
-  token: String,
+  //token: String,
   createdAt: {
     type: Date,
     default: Date.now,
@@ -33,5 +33,4 @@ const userSchema = new mongoose.Schema({
 
 
 export const User = mongoose.model('User', userSchema);
-//export const TodoTask = mongoose.model("TodoTask", todoTaskSchema);
 

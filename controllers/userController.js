@@ -1,4 +1,9 @@
-import { insertUsersDB, chackUserLoginDB, checksIfUsernameExists } from '../action/userFunctions.js';
+import {
+  insertUsersDB,
+  chackUserLoginDB,
+  checksIfUsernameExists,
+  allUsersControllerDB
+} from '../action/userFunctions.js';
 import { check, validationResult } from "express-validator";
 import { connectToDatabase } from "../db/dbConnect.js"
 
@@ -7,6 +12,7 @@ const insertUserControllerMiddleware = [
   check("email", "Please provide a valid email").isEmail(),
   check("password", "Please provide a password that is greater than 8 characters").isLength({ min: 8 })
 ];
+
 
 const insertUserController = async (req, res) => {
   connectToDatabase();
@@ -26,11 +32,31 @@ const insertUserController = async (req, res) => {
       if (success) {
         return res.status(201).json({ message: 'User inserted successfully', data: success });
       } else {
-        return res.status(500).json({ error: 'User insertion failed' });
+        return res.status(400).json({ error: 'User insertion failed' });
       }
     } catch (error) {
       return res.status(400).json({ error: error.message });
     }
+  }
+};
+
+
+const getUpdateUserTitleController = async (req, res) => {
+  try {
+    connectToDatabase();
+    const data = req.query
+    console.log(data);
+    const filter = {email: data.email}
+    const update = {title: data.title}
+    const result = await User.updateOne(filter, update);
+    if (result) {
+      return res.status(200).json({ firstName: result.firstName, lastName: result.lastName });
+    }
+    return res.status(400).send({
+      massage: "Username does not exist, you can register!"
+    });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
   }
 };
 
@@ -43,7 +69,7 @@ const chackUserLoginController = async (req, res) => {
     if (result) {
       return res.status(200).json({ message: "You connected to success", token: result });
     }
-    return res.status(300).send({ message: "Email or Password is incorrect." });
+    return res.status(400).send({ message: "Email or Password is incorrect." });
   } catch (error) {
     return res.status(400).send({ error: error.message });
   }
@@ -58,11 +84,34 @@ const getUserNameController = async (req, res) => {
     if (result) {
       return res.status(200).json({ firstName: result.firstName, lastName: result.lastName });
     }
-    return res.status(400).send({ massage: "Username does not exist, you can register!"
-  });
+    return res.status(400).send({
+      massage: "Username does not exist, you can register!"
+    });
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
 };
 
-export { insertUserController, insertUserControllerMiddleware, chackUserLoginController, getUserNameController };
+const allUsersController = async (req, res) => {
+  try {
+    connectToDatabase();
+    const result = await allUsersControllerDB()
+    if (result) {
+      return res.status(200).json({ result });
+    }
+    return res.status(400).send({
+      massage: "Username does not exist, you can register!"
+    });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+export {
+  insertUserControllerMiddleware,
+  insertUserController,
+  getUpdateUserTitleController,
+  chackUserLoginController,
+  getUserNameController,
+  allUsersController
+};
