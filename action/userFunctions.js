@@ -49,8 +49,6 @@ async function insertUsersDB(data) {
 }
 
 
-
-
 async function chackUserLoginDB(data) {
   let retries = 0;
   while (retries < MAX_RETRIES) {
@@ -62,16 +60,16 @@ async function chackUserLoginDB(data) {
       } else {
         const isPasswordValid = await bcrypt.compare(data.password, documents.password);
         if (isPasswordValid) {
-          
+
           // Set the expiration time (in seconds)
           const expiresIn = 86400; // 24 hour
-          
+
           const payload = {
             email: data.email,
             timestamp: Date.now(),
           };
-          
-          const token = JWT.sign(payload, 'megobb', {expiresIn}, { algorithm: "HS256" });
+
+          const token = JWT.sign(payload, 'megobb', { expiresIn }, { algorithm: "HS256" });
 
           console.log(token);
           return token
@@ -127,5 +125,36 @@ async function checksIfUsernameExists(data) {
 }
 
 
+async function allUsersControllerDB(data) {
+  let retries = 0;
+  while (retries < MAX_RETRIES) {
+    try {
+      const documents = await User.findOne();
+      if (!documents) {
+        return false;
+      } else {
+        console.log(documents);
+        return documents;
+      }
+    } catch (e) {
+      if (e.message.includes('buffering timed out')) {
+        console.warn(`Query attempt ${retries + 1} timed out. Retrying...`);
+        retries++;
+        await new Promise(resolve => setTimeout(resolve, RETRY_INTERVAL));
+      } else {
+        console.error('Error while querying users:', e);
+        throw new Error('An error occurred: ' + e);
+      }
+    }
+  }
+  console.error(`Query failed after ${MAX_RETRIES} retries.`);
+  throw new Error('An error occurred during the query.');
+}
 
-export { insertUsersDB, chackUserLoginDB, checksIfUsernameExists };
+
+export {
+  insertUsersDB,
+  chackUserLoginDB,
+  checksIfUsernameExists,
+  allUsersControllerDB
+};

@@ -1,4 +1,9 @@
-import { insertUsersDB, chackUserLoginDB, checksIfUsernameExists } from '../action/userFunctions.js';
+import {
+  insertUsersDB,
+  chackUserLoginDB,
+  checksIfUsernameExists,
+  allUsersControllerDB
+} from '../action/userFunctions.js';
 import { check, validationResult } from "express-validator";
 import { connectToDatabase } from "../db/dbConnect.js"
 
@@ -36,6 +41,26 @@ const insertUserController = async (req, res) => {
 };
 
 
+const getUpdateUserTitleController = async (req, res) => {
+  try {
+    connectToDatabase();
+    const data = req.query
+    console.log(data);
+    const filter = {email: data.email}
+    const update = {title: data.title}
+    const result = await User.updateOne(filter, update);
+    if (result) {
+      return res.status(200).json({ firstName: result.firstName, lastName: result.lastName });
+    }
+    return res.status(400).send({
+      massage: "Username does not exist, you can register!"
+    });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+
 const chackUserLoginController = async (req, res) => {
   try {
     connectToDatabase();
@@ -59,11 +84,34 @@ const getUserNameController = async (req, res) => {
     if (result) {
       return res.status(200).json({ firstName: result.firstName, lastName: result.lastName });
     }
-    return res.status(400).send({ massage: "Username does not exist, you can register!"
-  });
+    return res.status(400).send({
+      massage: "Username does not exist, you can register!"
+    });
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
 };
 
-export { insertUserController, insertUserControllerMiddleware, chackUserLoginController, getUserNameController };
+const allUsersController = async (req, res) => {
+  try {
+    connectToDatabase();
+    const result = await allUsersControllerDB()
+    if (result) {
+      return res.status(200).json({ result });
+    }
+    return res.status(400).send({
+      massage: "Username does not exist, you can register!"
+    });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+export {
+  insertUserControllerMiddleware,
+  insertUserController,
+  getUpdateUserTitleController,
+  chackUserLoginController,
+  getUserNameController,
+  allUsersController
+};
