@@ -4,7 +4,7 @@ import dotenv from "dotenv"
 import { connectToDatabase } from "./db/dbConnect.js"
 import cors from "cors"
 import verifyToken from "./middelWare/auth_JWT.js"
-import UsersRoutes from "./Routes/UsersRouts.js"
+import router from "./Routes/UsersRouts.js"
 
 
 dotenv.config();
@@ -15,8 +15,8 @@ const port = process.env.PORT || 3001
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(express.json());
 app.use(cors());
-//app.use(verifyToken);
-app.use("/api/users", UsersRoutes)
+app.use(verifyToken);
+app.use("/api/users", router)
 
 connectToDatabase();
 
