@@ -5,7 +5,7 @@ import {
   checksIfUsernameExists,
   allUsersControllerDB,
   findUserDB
-} from '../action/userFunctions.js';
+} from '../services/userService.js';
 import { check, validationResult } from "express-validator";
 import { connectToDatabase } from "../db/dbConnect.js"
 
