@@ -1,4 +1,4 @@
-import { User } from '../db/userSchema.js';
+import { User } from '../models/userSchema.js';
 import bcrypt from "bcrypt";
 import JWT from "jsonwebtoken";
 
@@ -18,7 +18,6 @@ async function insertUsersDB(data) {
         lastName: data.lastName,
         email: data.email,
         password: password,
-        title: data.title,
       });
 
       const result = await user.save();
@@ -84,11 +83,12 @@ async function chackUserLoginDB(data) {
   let retries = 0;
   while (retries < MAX_RETRIES) {
     try {
-      const documents = await checksIfUsernameExists(data);
+      const documents = await User.findOne({ email: data.email });
       if (!documents) {
         console.log("Username does not exist, you can register!");
         return false //"Username does not exist, you can register!"
       } else {
+        console.log(documents.password, 8888);
         const isPasswordValid = await bcrypt.compare(data.password, documents.password);
         if (isPasswordValid) {
 
@@ -134,7 +134,7 @@ async function checksIfUsernameExists(data) {
       };
 
       const documents = await User.findOne(query).select('-password');
-      
+
       if (!documents) {
         return false;
       } else {
