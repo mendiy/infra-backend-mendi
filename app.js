@@ -13,7 +13,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
-//app.use(verifyToken);
+app.use(verifyToken);
 app.use("/api/users", router);
 
 connectToDatabase();
