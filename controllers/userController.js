@@ -3,7 +3,8 @@ import {
   getUpdateUserTitleDB,
   chackUserLoginDB,
   checksIfUsernameExists,
-  allUsersControllerDB
+  allUsersControllerDB,
+  findUserDB
 } from '../action/userFunctions.js';
 import { check, validationResult } from "express-validator";
 import { connectToDatabase } from "../db/dbConnect.js"
@@ -106,11 +107,47 @@ const allUsersController = async (req, res) => {
   }
 };
 
+const checksIfUsernameExistsController = async (req, res) => {
+  try {
+    connectToDatabase();
+    const data = req.query;
+    const result = await checksIfUsernameExists(data)
+    console.log(result, 8888);
+    if (result) {
+      return res.status(200).json({ result });
+    }
+    return res.status(400).send({
+      massage: "Username does not exist, you can register!"
+    });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+
+const findUserController = async (req, res) => {
+  try {
+    connectToDatabase();
+    const data = req.body;
+    const result = await findUserDB(data)
+    if (result) {
+      return res.status(200).json({ result });
+    }
+    return res.status(400).send({
+      massage: "Username does not exist, you can register!"
+    });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+
 export {
   insertUserControllerMiddleware,
   insertUserController,
   getUpdateUserTitleController,
   chackUserLoginController,
   getUserNameController,
-  allUsersController
+  allUsersController,
+  checksIfUsernameExistsController,
+  findUserController
 };
