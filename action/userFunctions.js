@@ -19,8 +19,7 @@ async function insertUsersDB(data) {
         lastName: data.lastName,
         email: data.email,
         password: password,
-        //token: data.token,
-        title: null
+        title: data.title,
       });
 
       const result = await user.save();
@@ -53,13 +52,19 @@ async function getUpdateUserTitleDB(data) {
   let retries = 0;
   while (retries < MAX_RETRIES) {
     try {
-      console.log(data.email);
-      const filter = { email: data.email }
-      const update = { title: data.title }
+      const filter = { email: data.email };
+      const update = { title: data.title };
 
-      await User.updateOne(filter, update);
-      
-      return true
+      // Add the { runValidators: true } option to enforce schema validation
+      const result = await User.findOneAndUpdate(filter, update, { runValidators: true });
+
+      if (!result) {
+        // Handle the case where no user was found with the provided email
+        console.error("User not found");
+        return false;
+      }
+
+      return true;
     } catch (e) {
       if (e.message.includes('buffering timed out')) {
         console.warn(`Query attempt ${retries + 1} timed out. Retrying...`);
