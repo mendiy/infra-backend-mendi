@@ -1,6 +1,5 @@
 import { User } from '../db/userSchema.js';
 import bcrypt from "bcrypt";
-import { Router } from 'express';
 import JWT from "jsonwebtoken";
 
 
@@ -134,7 +133,8 @@ async function checksIfUsernameExists(data) {
         email: data.email
       };
 
-      const documents = await User.findOne(query);
+      const documents = await User.findOne(query).select('-password');
+      
       if (!documents) {
         return false;
       } else {
@@ -161,7 +161,7 @@ async function allUsersControllerDB(data) {
   let retries = 0;
   while (retries < MAX_RETRIES) {
     try {
-      const documents = await User.find();
+      const documents = await User.find().select('-password');
       if (!documents) {
         return false;
       } else {
@@ -183,10 +183,49 @@ async function allUsersControllerDB(data) {
 }
 
 
+async function findUserDB(data) {
+  let retries = 0;
+
+  while (retries < MAX_RETRIES) {
+    try {
+      const query = {
+        $or: [
+          { email: data.email },
+          { username: data.username },
+          { firstName: { $regex: new RegExp(data.firstName, 'i') } },
+          { lastName: { $regex: new RegExp(data.lastName, 'i') } }
+        ]
+      };
+
+      const documents = await User.find(query).select('-password');
+
+      if (!documents) {
+        return null; // User doesn't exist
+      } else {
+        console.log('User found:', documents);
+        return documents; // User exists
+      }
+    } catch (e) {
+      if (e instanceof MongoError && e.message.includes('buffering timed out')) {
+        console.warn(`Query attempt ${retries + 1} timed out. Retrying...`);
+        retries++;
+        await new Promise(resolve => setTimeout(resolve, RETRY_INTERVAL));
+      } else {
+        console.error('Error while querying users:', e);
+        throw new Error('An error occurred during the query.');
+      }
+    }
+  }
+
+  console.error(`Query failed after ${MAX_RETRIES} retries.`);
+  throw new Error('An error occurred during the query.');
+}
+
 export {
   insertUsersDB,
   getUpdateUserTitleDB,
   chackUserLoginDB,
   checksIfUsernameExists,
-  allUsersControllerDB
+  allUsersControllerDB,
+  findUserDB
 };
