@@ -1,7 +1,13 @@
 import { User } from '../models/userSchema.js';
 import bcrypt from "bcrypt";
 import JWT from "jsonwebtoken";
+import dotenv from 'dotenv';
 
+dotenv.config({
+  path: './.env'
+});
+
+const jwtSecret = process.env.JWT_SECRET;
 
 const MAX_RETRIES = 3; // You can adjust this value
 const RETRY_INTERVAL = 1000; // You can adjust this interval
@@ -20,10 +26,10 @@ async function insertUsersDB(data) {
         password: password,
       });
 
-      const result = await user.save();
+      const result = (await user.save());
 
       console.log(`${result._id} document inserted.`);
-      return user;
+      return true;
     } catch (e) {
       if (e.message.includes('buffering timed out')) {
         console.warn(`Insertion attempt ${retries + 1} timed out. Retrying...`);
@@ -88,7 +94,6 @@ async function chackUserLoginDB(data) {
         console.log("Username does not exist, you can register!");
         return false //"Username does not exist, you can register!"
       } else {
-        console.log(documents.password, 8888);
         const isPasswordValid = await bcrypt.compare(data.password, documents.password);
         if (isPasswordValid) {
 
@@ -100,10 +105,10 @@ async function chackUserLoginDB(data) {
             timestamp: Date.now(),
           };
 
-          const token = JWT.sign(payload, 'megobb', { expiresIn }, { algorithm: "HS256" });
+          const token = JWT.sign(payload, jwtSecret, { expiresIn }, { algorithm: "HS256" });
 
-          console.log(token);
-          return token
+          const result = { token: token, title: documents.title }
+          return result
         } else {
           console.log("Email or Password is incorrect.");
           return false
@@ -125,7 +130,7 @@ async function chackUserLoginDB(data) {
 }
 
 
-async function checksIfUsernameExists(data) {
+async function getUserDB(data) {
   let retries = 0;
   while (retries < MAX_RETRIES) {
     try {
@@ -225,7 +230,7 @@ export {
   insertUsersDB,
   getUpdateUserTitleDB,
   chackUserLoginDB,
-  checksIfUsernameExists,
+  getUserDB,
   allUsersControllerDB,
   findUserDB
 };

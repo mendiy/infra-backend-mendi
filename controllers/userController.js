@@ -1,17 +1,21 @@
+import { check, validationResult } from "express-validator";
+import { connectToDatabase } from "../db/dbConnect.js"
 import {
   insertUsersDB,
   getUpdateUserTitleDB,
   chackUserLoginDB,
-  checksIfUsernameExists,
+  getUserDB,
   allUsersControllerDB,
   findUserDB
 } from '../services/userService.js';
-import { check, validationResult } from "express-validator";
-import { connectToDatabase } from "../db/dbConnect.js"
 
 
 const insertUserControllerMiddleware = [
-  check("email", "Please provide a valid email").isEmail(),
+  check("email")
+    .isEmail().withMessage("Please provide a valid email")
+    .matches(/^[a-zA-Z0-9@._-]+$/).withMessage("Email must contain only English letters, numbers, and standard email characters"),
+  // Other validation checks can be added here
+  //check("email", "Please provide a valid email").isEmail(),
   check("password", "Please provide a password that is greater than 8 characters").isLength({ min: 8 })
 ];
 
@@ -19,13 +23,12 @@ const insertUserControllerMiddleware = [
 const insertUserController = async (req, res) => {
   connectToDatabase();
   const data = req.body;
-  console.log(data);
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const errorMessages = errors.array().map(error => error.msg);
     return res.status(400).json({ errors: errorMessages });
   }
-  const user = await checksIfUsernameExists(data);
+  const user = await getUserDB(data);
   if (user) {
     return res.status(400).json({ errors: ['This user already exists'] })
   } else {
@@ -67,7 +70,7 @@ const chackUserLoginController = async (req, res) => {
     const data = req.body
     const result = await chackUserLoginDB(data)
     if (result) {
-      return res.status(200).json({ message: "You connected to success", token: result });
+      return res.status(200).json({ message: "You connected to success", token: result.token, title: result.title });
     }
     return res.status(400).send({ message: "Email or Password is incorrect." });
   } catch (error) {
@@ -80,7 +83,7 @@ const getUserNameController = async (req, res) => {
     connectToDatabase();
     const data = req.query
     console.log(data);
-    const result = await checksIfUsernameExists(data)
+    const result = await getUserDB(data)
     if (result) {
       return res.status(200).json({ firstName: result.firstName, lastName: result.lastName });
     }
@@ -107,11 +110,11 @@ const allUsersController = async (req, res) => {
   }
 };
 
-const checksIfUsernameExistsController = async (req, res) => {
+const getUserController = async (req, res) => {
   try {
     connectToDatabase();
     const data = req.query;
-    const result = await checksIfUsernameExists(data)
+    const result = await getUserDB(data)
     console.log(result, 8888);
     if (result) {
       return res.status(200).json({ result });
@@ -148,6 +151,6 @@ export {
   chackUserLoginController,
   getUserNameController,
   allUsersController,
-  checksIfUsernameExistsController,
+  getUserController,
   findUserController
 };
