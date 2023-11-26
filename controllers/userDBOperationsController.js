@@ -4,6 +4,7 @@ import {
     insertUser,
     updateUserTitle,
     getUserByToken,
+    getUserByEmail,
     UserByCriteria,
     getAllUsers
 } from "../services/userDBOperationsServices.js";
