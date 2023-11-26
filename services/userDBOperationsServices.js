@@ -105,6 +105,32 @@ async function getUserByToken(token) {
     }
 }
 
+async function getUserByEmail(data) {
+    try {
+        const query = {
+            email: data.email
+        };
+
+        const documents = await User.findOne(query).select('-password');
+
+        if (!documents) {
+            return false;
+        } else {
+            console.log('This user already exists');
+            return documents;
+        }
+    } catch (e) {
+        if (e.message.includes('buffering timed out')) {
+            console.warn(`Query attempt ${retries + 1} timed out. Retrying...`);
+            retries++;
+            await new Promise(resolve => setTimeout(resolve, RETRY_INTERVAL));
+        } else {
+            console.error('Error while querying users:', e);
+            throw new Error('An error occurred: ' + e);
+        }
+    }
+}
+
 
 async function UserByCriteria(data) {
     try {
@@ -162,6 +188,7 @@ export {
     insertUser,
     updateUserTitle,
     getUserByToken,
+    getUserByEmail,
     UserByCriteria,
     getAllUsers
 }
