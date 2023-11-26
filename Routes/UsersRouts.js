@@ -1,27 +1,27 @@
 import { Router } from "express";
-import verifyToken from "../middelWare/auth_JWT.js";
+import verifyTokenService from "../middelWare/auth_JWT_Service.js";
+import loginUserController from '../controllers/userAuthController.js';
 import {
     insertUserControllerMiddleware,
     insertUserController,
-    getUpdateUserTitleController,
-    chackUserLoginController,
-    getUserNameController,
-    allUsersController,
+    updateUserTitleController,
+    getNamesByTokenController,
+    getAllUsersController,
     getUserController,
-    findUserController
-} from '../controllers/userController.js';
+    UserByCriteriaController
+} from '../controllers/userDBOperationsController.js';
 
 
 const router = Router();
 
-router.get("/verifyToken", verifyToken)
+router.get("/verifyToken", verifyTokenService)
 router.post("/register", insertUserControllerMiddleware, insertUserController);
-router.post("/userTitle", getUpdateUserTitleController);
-router.post("/login", chackUserLoginController);
-router.get("/avatar", getUserNameController);
-router.get("/users", allUsersController); //Get all users
+router.post("/userTitle", updateUserTitleController);
+router.post("/login", loginUserController);
+router.get("/avatar", getNamesByTokenController);
+router.get("/users", getAllUsersController); //Get all users
 router.get("/me", getUserController) //Get current user info by email
 router.get("/profile", getUserController) // Get single user by email
-router.post("/findUsers", findUserController) //Search users by first name, last name, email, username (?)
+router.post("/findUsers", UserByCriteriaController) //Search users by first name, last name, email, username (?)
 
 export default router;
