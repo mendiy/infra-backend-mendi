@@ -1,11 +1,11 @@
 import { Router } from "express";
-import verifyToken from "../middelWare/auth_JWT.js";
+import verifyTokenService from "../middelWare/auth_JWT_Service.js";
 import loginUserController from '../controllers/userAuthController.js';
 import {
     insertUserControllerMiddleware,
     insertUserController,
     updateUserTitleController,
-    getNamesByEmailController,
+    getNamesByTokenController,
     getAllUsersController,
     getUserController,
     UserByCriteriaController
@@ -14,11 +14,11 @@ import {
 
 const router = Router();
 
-router.get("/verifyToken", verifyToken)
+router.get("/verifyToken", verifyTokenService)
 router.post("/register", insertUserControllerMiddleware, insertUserController);
 router.post("/userTitle", updateUserTitleController);
 router.post("/login", loginUserController);
-router.get("/avatar", getNamesByEmailController);
+router.get("/avatar", getNamesByTokenController);
 router.get("/users", getAllUsersController); //Get all users
 router.get("/me", getUserController) //Get current user info by email
 router.get("/profile", getUserController) // Get single user by email

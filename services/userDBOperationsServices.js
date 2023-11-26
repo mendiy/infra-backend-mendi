@@ -1,5 +1,15 @@
 import { User } from '../models/userSchema.js';
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
+
+
+dotenv.config({
+    path: './.env'
+});
+
+const jwtSecret = process.env.JWT_SECRET;
+
 
 async function insertUser(data) {
     try {
@@ -37,10 +47,12 @@ async function insertUser(data) {
 }
 
 
-async function updateUserTitle(data) {
+async function updateUserTitle(token, title) {
     try {
-        const filter = { email: data.email };
-        const update = { title: data.title };
+        const decoded = jwt.verify(token, jwtSecret);
+
+        const filter = { email: decoded.email };
+        const update = { title: title.title };
 
         // Add the { runValidators: true } option to enforce schema validation
         const result = await User.findOneAndUpdate(filter, update, { runValidators: true });
@@ -65,10 +77,12 @@ async function updateUserTitle(data) {
 }
 
 
-async function getUserByEmail(data) {
+async function getUserByToken(token) {
     try {
+        const decoded = jwt.verify(token, jwtSecret);
+
         const query = {
-            email: data.email
+            email: decoded.email
         };
 
         const documents = await User.findOne(query).select('-password');
@@ -147,7 +161,7 @@ async function getAllUsers(data) {
 export {
     insertUser,
     updateUserTitle,
-    getUserByEmail,
+    getUserByToken,
     UserByCriteria,
     getAllUsers
 }

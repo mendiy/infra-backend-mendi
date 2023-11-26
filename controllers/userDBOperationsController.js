@@ -3,7 +3,7 @@ import { connectToDatabase } from "../db/dbConnect.js"
 import {
     insertUser,
     updateUserTitle,
-    getUserByEmail,
+    getUserByToken,
     UserByCriteria,
     getAllUsers
 } from "../services/userDBOperationsServices.js";
@@ -45,8 +45,10 @@ const insertUserController = async (req, res) => {
 const updateUserTitleController = async (req, res) => {
     try {
         connectToDatabase();
-        const data = req.body
-        const result = await updateUserTitle(data)
+        const token = req.headers.authorization;
+        const title = req.body
+
+        const result = await updateUserTitle(token, title)
         if (result) {
             console.log("The update was successful");
             return res.status(200).json({ message: "The update was successful" });
@@ -60,11 +62,12 @@ const updateUserTitleController = async (req, res) => {
 };
 
 
-const getNamesByEmailController = async (req, res) => {
+const getNamesByTokenController = async (req, res) => {
     try {
         connectToDatabase();
-        const data = req.query
-        const result = await getUserByEmail(data)
+        const token = req.headers.authorization;
+
+        const result = await getUserByToken(token)
         if (result) {
             return res.status(200).json({ firstName: result.firstName, lastName: result.lastName });
         }
@@ -96,8 +99,8 @@ const getAllUsersController = async (req, res) => {
 const getUserController = async (req, res) => {
     try {
         connectToDatabase();
-        const data = req.query;
-        const result = await getUserByEmail(data)
+        const token = req.headers.authorization;
+        const result = await getUserByToken(token)
         console.log(result, 8888);
         if (result) {
             return res.status(200).json({ result });
@@ -131,7 +134,7 @@ export {
     insertUserControllerMiddleware,
     insertUserController,
     updateUserTitleController,
-    getNamesByEmailController,
+    getNamesByTokenController,
     getAllUsersController,
     getUserController,
     UserByCriteriaController
