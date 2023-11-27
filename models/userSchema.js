@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
 }, {
   maxTimeMS: 60000 // Set to 60 seconds (adjust as needed)
 });
