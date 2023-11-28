@@ -6,16 +6,18 @@ import {
     getUserByToken,
     getUserByEmail,
     UserByCriteria,
-    getAllUsers
+    getAllUsers,
+    profileUpdate
 } from "../services/userDBOperationsServices.js";
 
 
-const insertUserControllerMiddleware = [
+const validationUserMiddlewareController = [
     check("email")
         .isEmail().withMessage("Please provide a valid email")
         .matches(/^[a-zA-Z0-9@._-]+$/).withMessage("Email must contain only English letters, numbers, and standard email characters"),
     check("password", "Please provide a password that is greater than 8 characters").isLength({ min: 8 })
 ];
+
 
 const insertUserController = async (req, res) => {
     connectToDatabase();
@@ -131,12 +133,35 @@ const UserByCriteriaController = async (req, res) => {
     }
 };
 
+
+const profileUpdateController = async (req, res) => {
+    connectToDatabase();
+    const token = req.headers.authorization;
+    const data = req.body;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg);
+        return res.status(400).json({ errors: errorMessages });
+    }
+    try {
+        const success = await profileUpdate(data, token);
+        if (success) {
+            return res.status(201).json({ message: 'User update successfully', data: success });
+        } else {
+            return res.status(400).json({ error: 'User update failed' });
+        }
+    } catch (error) {
+        return res.status(400).json({ error: error.message });
+    }
+};
+
 export {
-    insertUserControllerMiddleware,
+    validationUserMiddlewareController,
     insertUserController,
     updateUserTitleController,
     getNamesByTokenController,
     getAllUsersController,
     getUserController,
-    UserByCriteriaController
+    UserByCriteriaController,
+    profileUpdateController
 }
