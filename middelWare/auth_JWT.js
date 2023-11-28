@@ -13,7 +13,7 @@ const verifyToken = (req, res, next) => {
   const token = req.headers.authorization;
 
   // List of routes where JWT verification is not required
-  const excludedRoutes = ['/api/users/register', '/api/users/login', '/api/users/userTitle', '/api/users/verifyToken'];
+  const excludedRoutes = ['/api/users/register', '/api/users/login', '/api/users/verifyToken'];
 
   if (!excludedRoutes.includes(req.path)) {
     if (token) {

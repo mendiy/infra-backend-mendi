@@ -22,7 +22,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: allowedTitles,
   },
-  //token: String,
   createdAt: {
     type: Date,
     default: Date.now,

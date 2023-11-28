@@ -105,6 +105,7 @@ async function getUserByToken(token) {
     }
 }
 
+
 async function getUserByEmail(data) {
     try {
         const query = {
@@ -184,11 +185,61 @@ async function getAllUsers(data) {
     }
 }
 
+async function profileUpdate(data, token) {
+    try {
+        const decoded = jwt.verify(token, jwtSecret);
+
+        const filter = { email: decoded.email };
+        const update = {};
+
+        if (data.email) {
+            update.email = data.email;
+        }
+
+        if (data.firstName) {
+            update.firstName = data.firstName;
+        }
+
+        if (data.lastName) {
+            update.lastName = data.lastName;
+        }
+
+        if (data.title) {
+            update.title = data.title;
+        }
+
+        if (data.password) {
+            const password = await bcrypt.hash(data.password, 10);
+            update.password = password;
+        }
+
+        // Add the { runValidators: true } option to enforce schema validation
+        const result = await User.findOneAndUpdate(filter, update, { runValidators: true }).select('-password');
+        if (!result) {
+            // Handle the case where no user was found with the provided email
+            console.error("User not found");
+            return false;
+        }
+        delete update.password;
+        return update;
+    } catch (e) {
+        if (e.message.includes('buffering timed out')) {
+            console.warn(`Query attempt ${retries + 1} timed out. Retrying...`);
+            retries++;
+            await new Promise(resolve => setTimeout(resolve, RETRY_INTERVAL));
+        } else {
+            console.error('Error while querying users:', e);
+            throw new Error('An error occurred: ' + e);
+        }
+    }
+}
+
 export {
     insertUser,
     updateUserTitle,
     getUserByToken,
     getUserByEmail,
     UserByCriteria,
-    getAllUsers
+    getAllUsers,
+    profileUpdate
 }
