@@ -1,5 +1,5 @@
 import { Router } from "express";
-import verifyTokenService from "../middelWare/auth_JWT_Service.js";
+import verifyToken from "../middelWare/auth_JWT_Service.js";
 import loginUserController from '../controllers/userAuthController.js';
 import {
     insertUserControllerMiddleware,
@@ -14,7 +14,7 @@ import {
 
 const router = Router();
 
-router.get("/verifyToken", verifyTokenService)
+router.get("/verifyToken", verifyToken)
 router.post("/register", insertUserControllerMiddleware, insertUserController);
 router.post("/userTitle", updateUserTitleController);
 router.post("/login", loginUserController);
