@@ -20,7 +20,7 @@ async function loginUser(data) {
             if (isPasswordValid) {
 
                 // Set the expiration time (in seconds)
-                const expiresIn = 86400; // 24 hour
+                const expiresIn = 864000000000; // 24 hour
 
                 const payload = {
                     email: data.email,
