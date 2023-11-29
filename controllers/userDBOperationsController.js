@@ -7,7 +7,8 @@ import {
     getUserByEmail,
     UserByCriteria,
     getAllUsers,
-    profileUpdate
+    profileUpdate,
+    deleteProfile
 } from "../services/userDBOperationsServices.js";
 
 
@@ -158,6 +159,25 @@ const profileUpdateController = async (req, res) => {
     }
 };
 
+
+const deleteProfileController = async (req, res) => {
+    try {
+        connectToDatabase();
+        const token = req.headers.authorization;
+
+        const result = await deleteProfile(token)
+        if (result) {
+            console.log("Your account has been successfully deleted");
+            return res.status(200).json({ message: "Your account has been successfully deleted" });
+        }
+        return res.status(400).send({
+            massage: "Username does not exist, you can register!"
+        });
+    } catch (error) {
+        return res.status(400).json({ error: error.message });
+    }
+};
+
 export {
     validationUserMiddlewareController,
     insertUserController,
@@ -166,5 +186,6 @@ export {
     getAllUsersController,
     getUserController,
     UserByCriteriaController,
-    profileUpdateController
+    profileUpdateController,
+    deleteProfileController
 }
