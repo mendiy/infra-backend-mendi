@@ -11,7 +11,7 @@ const jwtSecret = process.env.JWT_SECRET;
 
 async function loginUser(data) {
     try {
-        const documents = await User.findOne({ email: data.email });
+        const documents = await User.findOne({ email: data.email, isDelete: { $ne: true } });
         if (!documents) {
             console.log("Username does not exist, you can register!");
             return false //"Username does not exist, you can register!"
