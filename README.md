@@ -40,3 +40,5 @@ http://localhost:5000/api/users/profileUpdate
 
 
 
+PUT  isDeleted
+http://localhost:5000/api/users/deleteProfile
