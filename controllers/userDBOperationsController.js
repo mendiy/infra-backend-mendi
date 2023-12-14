@@ -87,7 +87,8 @@ const getNamesByTokenController = async (req, res) => {
 const getAllUsersController = async (req, res) => {
     try {
         connectToDatabase();
-        const result = await getAllUsers()
+        const data = req.body
+        const result = await getAllUsers(data);
         if (result) {
             return res.status(200).json({ result });
         }

@@ -112,10 +112,10 @@ async function UserByCriteria(data) {
         const query = {
             $or: [
                 data.email ? { email: data.email } : null,
-                data.firstName ? { firstName:{ $regex: new RegExp(`^${data.firstName}$`, 'i') } } : null,
+                data.firstName ? { firstName: { $regex: new RegExp(`^${data.firstName}$`, 'i') } } : null,
                 data.lastName ? { lastName: { $regex: new RegExp(`^${data.lastName}$`, 'i') } } : null
             ].filter(condition => condition !== null)
-            
+
         };
         console.log(query);
 
@@ -136,7 +136,16 @@ async function UserByCriteria(data) {
 
 async function getAllUsers(data) {
     try {
-        const documents = await User.find({ isDeleted: false }).select('-password');
+        let documents;
+
+        if (Object.keys(data).length === 0) {
+            documents = await User.find({ isDeleted: false }).select('-password');
+        } else if ('only' in data) {
+            documents = await User.find({ isDeleted: false, _id: { $in: data.only } }).select('-password');
+        } else if ('exclude' in data) {
+            console.log('exclude');
+            documents = await User.find({ isDeleted: false, _id: { $nin: data.exclude } }).select('-password');
+        }
 
         if (!documents) {
             return false;
