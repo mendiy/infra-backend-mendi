@@ -6,7 +6,7 @@ import {
     getUserByToken,
     getUserByEmail,
     UserByCriteria,
-    getAllUsers,
+    getListUsers,
     profileUpdate,
     deleteProfile
 } from "../services/userDBOperationsServices.js";
@@ -84,11 +84,11 @@ const getNamesByTokenController = async (req, res) => {
 };
 
 
-const getAllUsersController = async (req, res) => {
+const getListUsersController = async (req, res) => {
     try {
         connectToDatabase();
         const data = req.body
-        const result = await getAllUsers(data);
+        const result = await getListUsers(data);
         if (result) {
             return res.status(200).json({ result });
         }
@@ -106,7 +106,6 @@ const getUserController = async (req, res) => {
         connectToDatabase();
         const token = req.headers.authorization;
         const result = await getUserByToken(token)
-        console.log(result, 8888);
         if (result) {
             return res.status(200).json({ result });
         }
@@ -184,7 +183,7 @@ export {
     insertUserController,
     updateUserTitleController,
     getNamesByTokenController,
-    getAllUsersController,
+    getListUsersController,
     getUserController,
     UserByCriteriaController,
     profileUpdateController,
