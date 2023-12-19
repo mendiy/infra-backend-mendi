@@ -46,7 +46,7 @@ async function updateUserTitle(token, title) {
         // const decoded = jwt.verify(token, jwtSecret);
         const user = await getUserByToken(token);
 
-        const filter = { email: user.email };
+        const filter = { email: user[0].email };
         const update = { title: title.title };
 
         // Add the { runValidators: true } option to enforce schema validation
