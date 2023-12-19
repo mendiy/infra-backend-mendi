@@ -71,14 +71,14 @@ async function getUserByToken(token) {
         const decoded = jwt.verify(token, jwtSecret);
 
         const query = {
-            email: decoded.email
+            email: decoded.email,
+            isDeleted: false
         };
-        const user = await User.findOne(query, { isDelete: false }).select('-password');
 
-        if (!user) {
+        const user = await User.find(query).select('-password');
+        if (!user || !user[0]) {
             return false;
         } else {
-            console.log(user.email, 1111);
             return user;
         }
     } catch (e) {
@@ -91,9 +91,11 @@ async function getUserByToken(token) {
 async function getUserByEmail(data) {
     try {
         const query = {
-            email: data.email
+            email: data.email,
+            isDeleted: false
         };
-        const documents = await User.findOne(query, { isDeleted: false }).select('-password');
+        const documents = await User.findOne(query).select('-password');
+        console.log(documents);
         if (!documents) {
             return false;
         } else {
@@ -114,14 +116,13 @@ async function UserByCriteria(data) {
                 data.email ? { email: data.email } : null,
                 data.firstName ? { firstName: { $regex: new RegExp(`^${data.firstName}$`, 'i') } } : null,
                 data.lastName ? { lastName: { $regex: new RegExp(`^${data.lastName}$`, 'i') } } : null
-            ].filter(condition => condition !== null)
+            ].filter(condition => condition !== null),
+            isDeleted: false,
 
         };
-        console.log(query);
 
-        const documents = await User.find(query, { isDeleted: false }).select('-password');
-
-        if (!documents) {
+        const documents = await User.find(query).select('-password');
+        if (!documents || !documents[0]) {
             return null; // User doesn't exist
         } else {
             // console.log('User found:', documents);
@@ -134,7 +135,7 @@ async function UserByCriteria(data) {
 };
 
 
-async function getAllUsers(data) {
+async function getListUsers(data) {
     try {
         let documents;
 
@@ -143,7 +144,6 @@ async function getAllUsers(data) {
         } else if ('only' in data) {
             documents = await User.find({ isDeleted: false, _id: { $in: data.only } }).select('-password');
         } else if ('exclude' in data) {
-            console.log('exclude');
             documents = await User.find({ isDeleted: false, _id: { $nin: data.exclude } }).select('-password');
         }
 
@@ -231,7 +231,7 @@ export {
     getUserByToken,
     getUserByEmail,
     UserByCriteria,
-    getAllUsers,
+    getListUsers,
     profileUpdate,
     deleteProfile
 }

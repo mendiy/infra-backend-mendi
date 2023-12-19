@@ -11,14 +11,17 @@ const jwtSecret = process.env.JWT_SECRET;
 
 async function loginUser(data) {
     try {
-        const documents = await User.findOne({ email: data.email, isDelete: { $ne: true } });
+        const query = {
+            email: data.email,
+            isDeleted: false
+        };
+        const documents = await User.findOne(query);
         if (!documents) {
             console.log("Username does not exist, you can register!");
             return false //"Username does not exist, you can register!"
         } else {
             const isPasswordValid = await bcrypt.compare(data.password, documents.password);
             if (isPasswordValid) {
-
                 // Set the expiration time (in seconds)
                 const expiresIn = 864000000000; // 24 hour
 

@@ -1,0 +1,143 @@
+# install extension rest client
+# put - humao.rest-client - this in vscode extension search 
+# You can learn how to use this extension in the following video
+# https://www.youtube.com/watch?v=RcxvrhQKv8I
+
+
+#Variables
+@firstName=avital
+@lastName=cohen
+@email=abc@gmail.com
+@password=12345678
+@titel=developer
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFiY0BnbWFpbC5jb20iLCJ0aW1lc3RhbXAiOjE3MDE3MDYzNjg0NjksImlhdCI6MTcwMTcwNjM2OCwiZXhwIjo4NjU3MDE3MDYzNjh9.jYU1SVuS7baYtZrlJT8ud_uPQ9wgtRvZGbWHkVH1tCA
+
+
+################################
+
+# REGISTER
+POST http://localhost:5000/api/users/register
+content-type: application/json
+
+{
+    "firstName": "{{firstName}}",
+    "lastName": "{{lastName}}",
+    "email": "{{email}}",
+    "password": "{{password}}"
+}
+
+################################
+
+# LOGIN
+POST http://localhost:5000/api/users/login
+content-type: application/json
+
+{
+    "email":"{{email}}",
+    "password":"{{password}}"
+}
+
+################################
+
+# VERIFY TOKEN
+GET http://localhost:5000/api/users/verifyToken
+Authorization: {{token}}
+
+################################
+
+# LIST ALL USERS
+GET http://localhost:5000/api/users/list
+Authorization: {{token}}
+
+################################
+
+# LIST ONLY USERS IN THE LIST
+GET http://localhost:5000/api/users/list
+Authorization: {{token}}
+content-type: application/json
+
+{
+  "only": [
+    "656592028218532eeda92285",
+    "656598dd749f65404dcc2950",
+    "6565a08d28e8903bb0d9c44f"
+  ]
+}
+
+################################
+
+# LIST EXCLUDE USERS IN THE LIST
+GET http://localhost:5000/api/users/list
+Authorization: {{token}}
+content-type: application/json
+
+{
+  "exclude": [
+    "656592028218532eeda92285",
+    "656598dd749f65404dcc2950",
+    "6565a08d28e8903bb0d9c44f"
+  ]
+}
+
+################################
+
+# UPDATE TITLE
+POST  http://localhost:5000/api/users/title
+Authorization: {{token}}
+Content-Type: application/json
+
+{
+    "title":"{{titel}}"
+}
+
+################################
+
+# AVATAR
+GET  http://localhost:5000/api/users/avatar
+Authorization: {{token}}
+
+################################
+
+# ME - CURRENT USER
+GET  http://localhost:5000/api/users/me
+Authorization: {{token}}
+
+################################
+
+# PROFILE
+GET  http://localhost:5000/api/users/profile
+Authorization: {{token}}
+
+################################
+
+# PROFILE UPDATE
+PUT  http://localhost:5000/api/users/profileUpdate
+Authorization: {{token}}
+Content-Type: application/json
+
+{
+    "firstName": "{{firstName}}",
+    "lastName": "{{lastName}}",
+    "email": "{{email}}",
+    "password": "{{password}}",
+    "title": "{{titel}}"
+}
+
+################################
+
+# FIND BY CRITERIA CONTROLLER
+POST  http://localhost:5000/api/users/find
+Authorization: {{token}}
+Content-Type: application/json
+
+{
+    "firstName": "{{firstName}}"
+}
+
+################################
+
+# IS DELETED
+PUT  http://localhost:5000/api/users/deleteProfile
+Authorization: {{token}}
+
+################################
